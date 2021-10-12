@@ -4,10 +4,10 @@
 
   if (($usStr -match "work-items")) {
     Write-Host "Input already has 'work-items' in it" -BackgroundColor Red -ForegroundColor Black
-  } elseif (!($usStr -match "user-story")) {
-    Write-Host "Input doesn't have 'user-story' in it" -BackgroundColor Red -ForegroundColor Black
+  } elseif (!($usStr -match "user-stories")) {
+    Write-Host "Input doesn't have 'user-stories' in it" -BackgroundColor Red -ForegroundColor Black
   } else {
-    $usStr = $usStr.Replace("user-story", "work-items")
+    $usStr = $usStr.Replace("user-stories", "work-items")
     Set-Clipboard $usStr
 
     Write-Host "`"$($usStr)`" has been stored on clipboard" -ForegroundColor Green
