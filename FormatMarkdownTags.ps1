@@ -1,6 +1,16 @@
 ﻿$appDirEnums = @{"MAIN_MENU" = "mainmenu"; "SUB_MENU" = "submenu" }
 $appCommandEnums = @{"GO_BACK" = ":gb"; "QUIT" = ":q" }
+$modules = $(
+  "Change work item/markdown state",
+  "Change 'user-stories' for 'work-items'",
+  "Create tag for work item",
+  "Modify tag template"
+)
 
+function Set-ComingSoonMessage {
+  Write-Host "Nothing here :) Feature is coming soon"
+  Start-Sleep 1
+}
 function Approve-StateString {
   param (
     $stateString
@@ -43,9 +53,10 @@ function Invoke-AppCommands {
 }
 
 do {
-  Write-Host "What do you want to do?"
-  Write-Host "`n1. Change work item/markdown state"
-  Write-Host "2. Change 'user-stories' for 'work-items'"
+  Write-Host "What do you want to do?`n"
+  for ($i = 0; $i -lt $modules.Count; $i++) {
+    Write-Host "$($i + 1). $($modules[$i])"
+  }
   $op = Read-Host "Enter option"
   Invoke-AppCommands $op $appDirEnums.MAIN_MENU
   Clear-Host
@@ -107,6 +118,12 @@ do {
   
         Write-Host `n
       }
+    }
+    3 {
+      Set-ComingSoonMessage
+    }
+    4 {
+      Set-ComingSoonMessage
     }
     Default {
       Write-Host "No such option`nGoing back to menu" 
