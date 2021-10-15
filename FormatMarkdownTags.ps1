@@ -66,7 +66,7 @@ do {
   Write-Host "What do you want to do?`n"
   Get-OptionMenu $modules
   $op = Read-Host "Enter option"
-  
+
   Invoke-AppCommands $op $appDirEnums.MAIN_MENU
   Clear-Host
 
@@ -80,14 +80,16 @@ do {
         Invoke-AppCommands $usStr $appDirEnums.SUB_MENU
 
         $validationObj = Approve-StateString $usStr
-
         if ($validationObj.isStringValid) {
-          # Clear-Host
+          Clear-Host
+          
           $data = @{ "option" = ([int]$usStr.Split(" ")[0]) - 1; "tag" = $usStr.Split(" ")[1] }
           $stringToReplace = $states | Where-Object { $data.tag -match $_ }
           if ($stringToReplace.GetType().Name -eq "Object[]") {
             $stringToReplace = $stringToReplace[0]
           }
+
+          Write-Host "Old tag: $($data.tag)" -BackgroundColor Yellow -ForegroundColor Black
 
           $data.tag = $data.tag.Replace($stringToReplace, $states[$data.option])
           Set-Clipboard $data.tag
