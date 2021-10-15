@@ -7,6 +7,16 @@ $modules = $(
   "Modify tag template"
 )
 $states = $("to-dos", "active", "closed", "recycle-bin", "resolved", "UAT")
+$tagTemplate = "welk/ol2.0/work-items/{state}/{workitemnumber}"
+
+function Get-ErrorMessage {
+  param (
+    $message
+  )
+  Write-Host "$($message)" -BackgroundColor Red -ForegroundColor Black
+  Start-Sleep -Seconds 1
+  Clear-Host
+}
 
 function Get-OptionMenu {
   param (
@@ -29,19 +39,46 @@ function Approve-StateString {
   [string[]] $arr = $stateString.Split(" ")
 
   if (!($arr.Count -match 2)) {
-    return @{"isStringValid" = $false; "message" = "Error! You did not entered 2 options" }
-  }
-  elseif (!($arr[0] -match "^\d+$")) {
-    return @{"isStringValid" = $false; "message" = "Error! You entered an invalid option. Is not a number" }
-  }
-  elseif (([int]$arr[0] -gt 7) -or ([int]$arr[0] -le 0)) {
-    return @{"isStringValid" = $false; "message" = "Error! You entered an invalid option. There's no '$($arr[0])' option" }
+    return @{"isValid" = $false; "message" = "Error! You did not entered 2 options" }
   }
   elseif (!($null -ne ($states | Where-Object { $arr[1] -match $_ }))) {
-    return @{"isStringValid" = $false; "message" = "Error! Tag doesn't have one of the listed options" }
+    return @{"isValid" = $false; "message" = "Error! Tag doesn't have one of the listed options" }
+  }
+  elseif (!($selectedOption -match "^\d+$")) {
+    return @{"isValid" = $false; "message" = "Error! You entered an invalid option. Is not a number" }
+  }
+  elseif (([int]$selectedOption -gt ($optionCount + 1)) -or ([int]$selectedOption -le 0)) {
+    return @{"isValid" = $false; "message" = "Error! You entered an invalid option. There's no '$($arr[0])' option" }
   }
 
-  return @{"isStringValid" = $true; }
+  return @{"isValid" = $true; }
+}
+
+function Approve-SelectedOption {
+  param (
+    $selectedOption,
+    $optionCount
+  )
+  
+  if (!($selectedOption -match "^\d+$")) {
+    return @{"isValid" = $false; "message" = "Error! You entered an invalid option. Is not a number" }
+  }
+  elseif (([int]$selectedOption -gt ($optionCount + 1)) -or ([int]$selectedOption -le 0)) {
+    return @{"isValid" = $false; "message" = "Error! You entered an invalid option. There's no '$($arr[0])' option" }
+  }
+
+  return @{"isValid" = $true; }
+}
+
+function Approve-NumberValidation {
+  param (
+    $value
+  )
+  if (!($value -match "^\d+$")) {
+    return @{"isValid" = $false; "message" = "Error! You entered an invalid option. Is not a number" }
+  }
+
+  return @{"isValid" = $true; }
 }
 
 function Invoke-AppCommands {
@@ -80,9 +117,9 @@ do {
         Invoke-AppCommands $usStr $appDirEnums.SUB_MENU
 
         $validationObj = Approve-StateString $usStr
-        if ($validationObj.isStringValid) {
+        if ($validationObj.isValid) {
           Clear-Host
-          
+
           $data = @{ "option" = ([int]$usStr.Split(" ")[0]) - 1; "tag" = $usStr.Split(" ")[1] }
           $stringToReplace = $states | Where-Object { $data.tag -match $_ }
           if ($stringToReplace.GetType().Name -eq "Object[]") {
@@ -98,9 +135,7 @@ do {
           Start-Sleep -Seconds 1
         }
         else {
-          Write-Host "$($validationObj.message)" -BackgroundColor Red -ForegroundColor Black
-          Start-Sleep -Seconds 1
-          Clear-Host
+          Get-ErrorMessage $validationObj.message
         }
       }
     }
@@ -128,7 +163,35 @@ do {
       }
     }
     3 {
-      Set-ComingSoonMessage
+      while ($true) {
+        $workItemNumber = Read-Host "Write the work item number"
+        Invoke-AppCommands $workItemNumber $appDirEnums.SUB_MENU
+        $validationObj3 = Approve-NumberValidation $workItemNumber
+        if ($validationObj3.isValid) {
+          Get-OptionMenu $states
+          $tagState = Read-Host "Select an option to insert it to the tag"
+
+          Invoke-AppCommands $workItemNumber $appDirEnums.SUB_MENU
+
+          $validationObjTagState = Approve-SelectedOption $tagState $states.Count
+
+          if ($validationObjTagState.isValid) {
+            $newTag = $tagTemplate.Replace("{state}", $states[[int]$tagState - 1])
+            $newTag = $newTag.Replace("{workitemnumber}", $workItemNumber)
+            Set-Clipboard $newTag
+
+            Write-Host "`"$($newTag)`" has been stored on clipboard" -ForegroundColor Green
+          }
+          else {
+            Get-ErrorMessage $validationObjTagState.message
+          }
+        }
+        else {
+          Get-ErrorMessage $validationObj3.message
+        }
+      }
+
+      
     }
     4 {
       Set-ComingSoonMessage
