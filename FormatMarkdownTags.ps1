@@ -24,7 +24,7 @@ function Approve-StateString {
   return @{"isStringValid" = $true; }
 }
 
-function Stop-CurrentExecution {
+function Invoke-AppCommands {
   param (
     $command,
     $appDir
@@ -47,7 +47,7 @@ do {
   Write-Host "`n1. Change work item/markdown state"
   Write-Host "2. Change 'user-stories' for 'work-items'"
   $op = Read-Host "Enter option"
-  Stop-CurrentExecution($op, $appDirEnums.MAIN_MENU)
+  Invoke-AppCommands $op $appDirEnums.MAIN_MENU
   Clear-Host
 
   switch ($op) {
@@ -60,9 +60,9 @@ do {
         Write-Host "Enter an option from above followed by the tag to replace it with the selected option`n(e.g. 1 hi/uoh/active/7352)"
         $usStr = Read-Host "Press '$($appCommandEnums.GO_BACK)' to go back to previous menu"
 
-        Stop-CurrentExecution($usStr, $appDirEnums.SUB_MENU)
+        Invoke-AppCommands $usStr $appDirEnums.SUB_MENU
 
-        $validationObj = Approve-StateString($usStr)
+        $validationObj = Approve-StateString $usStr
 
         if ($validationObj.isStringValid) {
           # Clear-Host
@@ -90,7 +90,7 @@ do {
         Write-Host "Enter tag to replace (e.g. hi/user-stories/hey/)"
         $usStr = Read-Host "Press '$($appCommandEnums.GO_BACK)' to go back to previous menu"
 
-        Stop-CurrentExecution($usStr, $appDirEnums.SUB_MENU)
+        Invoke-AppCommands $usStr $appDirEnums.SUB_MENU
 
         if (($usStr -match "work-items")) {
           Write-Host "Input already has 'work-items' in it" -BackgroundColor Red -ForegroundColor Black
