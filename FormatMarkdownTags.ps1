@@ -6,6 +6,17 @@ $modules = $(
   "Create tag for work item",
   "Modify tag template"
 )
+$states = $("to-dos", "active", "closed", "recycle-bin", "resolved", "UAT")
+
+function Get-OptionMenu {
+  param (
+    $options
+  )
+
+  for ($i = 0; $i -lt $options.Count; $i++) {
+    Write-Host "$($i + 1). $($options[$i])"
+  }
+}
 
 function Set-ComingSoonMessage {
   Write-Host "Nothing here :) Feature is coming soon"
@@ -15,7 +26,6 @@ function Approve-StateString {
   param (
     $stateString
   )
-  $states = $("to-dos", "active", "closed", "recycle-bin", "resolved", "UAT")
   [string[]] $arr = $stateString.Split(" ")
 
   if (!($arr.Count -match 2)) {
@@ -54,20 +64,16 @@ function Invoke-AppCommands {
 
 do {
   Write-Host "What do you want to do?`n"
-  for ($i = 0; $i -lt $modules.Count; $i++) {
-    Write-Host "$($i + 1). $($modules[$i])"
-  }
+  Get-OptionMenu $modules
   $op = Read-Host "Enter option"
+  
   Invoke-AppCommands $op $appDirEnums.MAIN_MENU
   Clear-Host
 
   switch ($op) {
     1 {
-      $states = $("to-dos", "active", "closed", "recycle-bin", "resolved", "UAT")
       while ($true) {
-        for ($i = 0; $i -lt $states.Count; $i++) {
-          Write-Host "$($i + 1). $($states[$i])"
-        }
+        Get-OptionMenu $states
         Write-Host "Enter an option from above followed by the tag to replace it with the selected option`n(e.g. 1 hi/uoh/active/7352)"
         $usStr = Read-Host "Press '$($appCommandEnums.GO_BACK)' to go back to previous menu"
 
