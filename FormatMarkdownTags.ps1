@@ -44,10 +44,10 @@ function Approve-StateString {
   elseif (!($null -ne ($states | Where-Object { $arr[1] -match $_ }))) {
     return @{"isValid" = $false; "message" = "Error! Tag doesn't have one of the listed options" }
   }
-  elseif (!($selectedOption -match "^\d+$")) {
+  elseif (!($arr[0] -match "^\d+$")) {
     return @{"isValid" = $false; "message" = "Error! You entered an invalid option. Is not a number" }
   }
-  elseif (([int]$selectedOption -gt ($optionCount + 1)) -or ([int]$selectedOption -le 0)) {
+  elseif (([int]$arr[0] -gt 7) -or ([int]$arr[0] -le 0)) {
     return @{"isValid" = $false; "message" = "Error! You entered an invalid option. There's no '$($arr[0])' option" }
   }
 
